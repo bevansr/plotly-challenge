@@ -35,6 +35,8 @@ d3.json("samples.json").then(function(data) {
         var otu_ids = initSamples.otu_ids
         var otu_labels = initSamples.otu_labels;
         var sample_values = initSamples.sample_values;
+
+        var gaugeScrubs = initMetadata.wfreq;
         
         // Slice the first 10 values of each array for the bar chart
         var idsSliced = otu_ids.slice(0,10);
@@ -69,6 +71,36 @@ d3.json("samples.json").then(function(data) {
         var data = [trace1];
         Plotly.newPlot("bar",data);
 
+        //Create the gauge chart
+        var data3 = [
+            {
+              type: "indicator",
+              mode: "gauge+number",
+              value: gaugeScrubs,
+              title: { text: "Scrubs per Week", font: { size: 20 } },
+              gauge: {
+                axis: { range: [null, 9], tickwidth: 1, tickcolor: "darkgreen" },
+                bar: { color: "#006622" },
+                bgcolor: "white",
+                borderwidth: 2,
+                bordercolor: "gray",
+                steps: [
+                  { range: [0, 1], color: "#e6ffee" },
+                  { range: [1, 2], color: "#ccffdd"},
+                  { range: [2, 3], color: "#b3ffcc"},
+                  { range: [3, 4], color: "#80ffaa"},
+                  { range: [4, 5], color: "#00ff55"},
+                  { range: [5, 6], color: "#00e64d"},
+                  { range: [6, 7], color: "#00cc44"},
+                  { range: [7, 8], color: "#009933"},
+                  { range: [8, 9], color: "#00802b"},
+                ],
+              }
+            }
+          ];
+          
+          Plotly.newPlot('gauge', data3);
+
         // Create the bubble chart
         var trace2 = {
            x : otu_ids,
@@ -83,8 +115,14 @@ d3.json("samples.json").then(function(data) {
                sizeref : 2
            }
         };
+
+        var layout2 = {
+            xaxis: {
+                title: 'OTU ID'
+            }
+        };
         var data2 = [trace2];
-        Plotly.newPlot("bubble",data2);
+        Plotly.newPlot("bubble",data2, layout2);
     };
 
     // On change to the DOM, call optionChanged()
@@ -104,6 +142,7 @@ d3.json("samples.json").then(function(data) {
         var otu_ids = newSamples.otu_ids;
         var otu_labels = newSamples.otu_labels;
         var sample_values = newSamples.sample_values;
+        var gaugeScrubs = newMetadata.wfreq;
 
         // Wipe existing metadata
         demographics.html("");
@@ -152,14 +191,21 @@ d3.json("samples.json").then(function(data) {
            }
         };
         var data2 = [trace2];
+
+        var layout2 = {
+            xaxis: {
+                title: 'OTU ID'
+            }
+        };
         // Run update Plotly function 
-        updatePlotly(data, data2);
+        updatePlotly(data, data2, layout2, gaugeScrubs);
     };
 
-    // Function to recreate the bar and bubble plots
-    function updatePlotly(newData1, newData2) {
+    // Function to recreate the bar, gauge and bubble plots
+    function updatePlotly(newData1, newData2, newData3, newData4) {
         Plotly.react("bar", newData1);
-        Plotly.react("bubble", newData2);
+        Plotly.react("bubble", newData2, newData3);
+        Plotly.restyle("gauge", "value", newData4);
     };
 
     // Initialize plots and metadata
